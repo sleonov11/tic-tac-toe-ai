@@ -32,7 +32,7 @@ class HumanPlayer(Player):
 class AIPlayer(Player):
     def __init__(self, symbol):
         super().__init__(symbol)
-        self.oponent_sybbol = "O" if symbol == 'X' else "X"
+        self.opponent_symbol = "O" if symbol == 'X' else "X"
         self.nodes_visited = 0
         self.prune_count = 0
 
@@ -41,15 +41,69 @@ class AIPlayer(Player):
         self.prune_count = 0
 
         _, best_move = self._minimax(
-            board = board.clone()
-            depth = 0
-            is_maximizing = True
-            alpha = float('-inf')
-            beta = float('inf')
+            board.clone(),
+            0,
+            True,
+            float('-inf'),
+            float('inf')
         )
         print(f"ИИ ({self.symbol}): проанализировано узлов = {self.nodes_visited}, отсечений = {self.prune_count}")
 
         return best_move
     
-    def _minimax(self, board, depth:int, is_maximizing:str, alpha:float, beta:float):
-        pass
+    def _evaluate_board(self, board):
+        """Оценочная функция: +10 за победу ИИ, -10 за победу противника, 0 иначе"""
+        if board.check_win(self.symbol):
+            return 10
+        if board.check_win(self.opponent_symbol):
+            return -10
+        return 0
+    
+    def _minimax(self, board, depth:int, is_maximizing:bool, alpha:float, beta:float):
+        self.nodes_visited += 1
+
+        score = self._evaluate_board(board)
+        if score != 0 or board.is_full():
+            return score, None
+        
+        MAX_DEPTH = 10
+        if depth >= MAX_DEPTH:
+            return self._evaluate_board(board), None
+        
+        best_move = None
+
+        if is_maximizing:
+            best_value = -float('inf')
+            for move in board.get_available_moves():
+                new_board =  board.clone()
+                new_board.make_move(move[0], move[1], self.symbol)
+                val, _ = self._minimax(new_board, depth+1, False, alpha, beta)
+                
+                if val > best_value:
+                    best_value = val
+                    best_move = move
+                alpha = max(alpha, best_value)
+                if alpha >= beta:
+                    self.prune_count += 1
+                    break # отсечение
+            return best_value, best_move
+        
+        else:
+            best_value = float('inf')
+            for move in board.get_available_moves():
+                new_board =  board.clone()
+                new_board.make_move(move[0], move[1], self.opponent_symbol)
+                val, _ = self._minimax(new_board, depth+1, True, alpha, beta)
+                
+                if val < best_value:
+                    best_value = val
+                    best_move = move
+                beta = min(beta, best_value)
+                if alpha >= beta:
+                    self.prune_count += 1
+                    break
+            return best_value, best_move
+
+
+
+

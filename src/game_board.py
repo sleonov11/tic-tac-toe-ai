@@ -20,6 +20,14 @@ class GameBoard:
     def is_full(self) -> bool:
         return self._move_count == self.n * self.n
 
+    def get_available_moves(self) -> list[tuple[int, int]]:
+        moves = []
+        for row in range(self.n):
+            for col in range(self.n):
+                if self._board[row][col] == '.':
+                    moves.append((row, col))
+        return moves
+
     def make_move(self, row, col, player):
         if player not in ('X', 'O'):
             raise ValueError('Игрок должен быть X или O')
@@ -47,7 +55,7 @@ class GameBoard:
                     self._check_direction(row, col, 1, -1, player)):  
                     return True
         return False
-
+    
     def _check_direction(self, row: int, col: int, dr: int, dc: int, player: str) -> bool:
         count = 1 
         r, c = row + dr, col + dc
