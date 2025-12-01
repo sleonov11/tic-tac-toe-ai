@@ -12,7 +12,7 @@ def main():
         n, k = 3, 3
 
     human = HumanPlayer('X')
-    ai = AIPlayer('O')
+    ai = AIPlayer('O', n)
     game = Game(human, ai, n=n, k=k)
     game.start()
 

@@ -1,5 +1,5 @@
 from src.game_board import GameBoard
-from src.players import HumanPlayer, AIPlayer
+from src.players import Player
 
 class Game:
     def __init__(self, player1: Player, player2: Player, n: int, k: int):
